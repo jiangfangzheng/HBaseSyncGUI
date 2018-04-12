@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static util.FileUtil.readFile;
+import static util.FileUtil.saveAppend;
 
 /**
  * @author Sandeepin
@@ -30,10 +31,10 @@ public class HBaseRestUtil {
     }
 
     // 输入文件名，导入数据到HBase
-    public static boolean adds(String fileName){
+    public static boolean adds(String fileName) {
         List<String> textList = new ArrayList<>();
         boolean b = readFile(fileName, textList);
-        if (!b){
+        if (!b) {
             return false;
         }
         Map<String, String> rowkeyAndValue = new TreeMap<>();
@@ -42,8 +43,25 @@ public class HBaseRestUtil {
             String value = line.substring(17, line.length());
             rowkeyAndValue.put(key, value);
         }
-        // 导入HBase 武重表 wuzhong
-        return adds("wuzhong", rowkeyAndValue, "d", "k");
+        // 导入HBase 武重表 wuzhong 分批导入 50000条一批
+        boolean outBool = false;
+        Map<String, String> tempMap = new TreeMap<>();
+        int batchNum = 1;
+        System.out.println("adds:rowkeyAndValue.size() " + rowkeyAndValue.size());
+        saveAppend("HBaseSync.log", "    导入数据条数：" + rowkeyAndValue.size());
+        int cnt = 0;
+        for (String akey : rowkeyAndValue.keySet()) {
+            tempMap.put(akey, rowkeyAndValue.get(akey));
+            cnt++;
+            if (cnt % 50000 == 0 || cnt == rowkeyAndValue.size()) {
+                outBool = adds("wuzhong", tempMap, "d", "k");
+                System.out.println("adds:分批处理，第 " + batchNum + " 批，大小：" + tempMap.size());
+                saveAppend("HBaseSync.log", "    分批处理，第 " + batchNum + " 批，大小：" + tempMap.size());
+                tempMap.clear();
+                batchNum++;
+            }
+        }
+        return outBool;
     }
 
     // 插入rowkey、Value合集，默认一个family

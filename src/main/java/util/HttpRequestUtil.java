@@ -10,6 +10,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import static util.FileUtil.saveAppend;
+
 /**
  * Created by YY on 2017-12-27.
  */
@@ -35,6 +37,9 @@ public class HttpRequestUtil {
             conn.connect();
             // 设置请求体
             DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+            System.out.println("httpRequest:jsonObject.toString().length() " +
+                    jsonObject.toString().length()*1.0/1024/1024 + "MB");
+            saveAppend("HBaseSync.log", "    上传文件大小：" + jsonObject.toString().length()*1.0/1024/1024 + "MB");
             out.writeBytes(jsonObject.toString());
             out.flush();
             out.close();

@@ -33,6 +33,7 @@ public class GuiWorker {
                     // setProgress(i);
                     // 通过 SwingWorker 内部机制传递数据到事件调度线程
                     publish(realIndex, fileList.size() + "", fileName + " 同步中...");
+                    saveAppend("HBaseSync.log", fileName + " 同步中...");
                     long startTimeNow = System.currentTimeMillis();
                     boolean b = adds(fileList.get(i));
                     long endTime = System.currentTimeMillis();
