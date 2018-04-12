@@ -35,7 +35,7 @@ public class MainGui extends JFrame implements ActionListener, ChangeListener {
         // 系统风格界面、初始化
         setSystemStyle();
         JFrame jf = new JFrame("HBase同步软件 v1.0    By jfz");
-        jf.setSize(640, 200);
+        jf.setSize(400, 200);
         jf.setMinimumSize(new Dimension(400, 200));
         fileOpenButton = new JButton("打开");
         fileOpenButton.setFocusPainted(false);
