@@ -2,6 +2,8 @@ package util;
 
 import javafx.util.Pair;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -16,6 +18,7 @@ import static util.FileUtil.saveAppend;
  * Created by YY on 2017-12-27.
  */
 public class HttpRequestUtil {
+    static final Logger logger = LoggerFactory.getLogger(HttpRequestUtil.class);
 
     private static Pair<Integer, String> httpRequest(String method, String strUrl, JSONObject jsonObject) {
         Integer responseCode = 0;
@@ -38,8 +41,8 @@ public class HttpRequestUtil {
             // 设置请求体
             DataOutputStream out = new DataOutputStream(conn.getOutputStream());
             System.out.println("httpRequest:jsonObject.toString().length() " +
-                    jsonObject.toString().length()*1.0/1024/1024 + "MB");
-            saveAppend("HBaseSync.log", "    上传文件大小：" + jsonObject.toString().length()*1.0/1024/1024 + "MB");
+                    jsonObject.toString().length() * 1.0 / 1024 / 1024 + "MB");
+            saveAppend("HBaseSync.log", "    上传文件大小：" + jsonObject.toString().length() * 1.0 / 1024 / 1024 + "MB");
             out.writeBytes(jsonObject.toString());
             out.flush();
             out.close();
@@ -56,6 +59,7 @@ public class HttpRequestUtil {
             conn.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error("抛出异常！", e);
         }
         return new Pair(responseCode, response);
     }

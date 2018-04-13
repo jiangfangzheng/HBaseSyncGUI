@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="logback.logdir" value="./"/>
+    <property name="logback.appname" value="HBaseSync"/>
+    <!--控制台-->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>%d{yyyy-MM-dd-HH:mm:ss.SSS},[%thread],%-5level,%logger{36},%msg%n</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <!--日志文件-->
+    <appender name="DEBUG" class="ch.qos.logback.core.FileAppender">
+        <File>${logback.logdir}/${logback.appname}.csv</File>
+        <append>true</append>
+        <!--<filter class="ch.qos.logback.classic.filter.LevelFilter">-->
+            <!--&lt;!&ndash; LevelFilter: 级别过滤器，根据日志级别进行过滤 &ndash;&gt;-->
+            <!--<level>DEBUG</level>-->
+            <!--<onMatch>ACCEPT</onMatch>-->
+            <!--<onMismatch>DENY</onMismatch>-->
+        <!--</filter>-->
+        <encoder>
+            <Pattern>%d{yyyy-MM-dd-HH:mm:ss.SSS},[%thread],%-5level,%logger{36},%msg%n</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <!--指定包日志级别-->
+    <!--<logger name="me.jfz" level="TRACE"/>-->
+    <root level="debug">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="DEBUG"/>
+    </root>
+</configuration>

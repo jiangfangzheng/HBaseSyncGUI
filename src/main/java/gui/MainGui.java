@@ -7,10 +7,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import static gui.GuiUtil.setFrameCenter;
 import static gui.GuiUtil.setSystemStyle;
+import static util.FileUtil.readFile;
 import static util.FileUtil.readFilesByPath;
 
 /**
@@ -23,6 +25,7 @@ public class MainGui extends JFrame implements ActionListener, ChangeListener {
 
     private JButton fileOpenButton;
     private JButton fileSyncButton;
+    private JButton logShowButton;
     private JLabel filePathLabel;
     private JLabel fileNameLabel;
     private JProgressBar syncProgressBar;
@@ -34,9 +37,9 @@ public class MainGui extends JFrame implements ActionListener, ChangeListener {
     public MainGui() {
         // 系统风格界面、初始化
         setSystemStyle();
-        JFrame jf = new JFrame("HBase同步软件 v1.0    By jfz");
-        jf.setSize(400, 200);
-        jf.setMinimumSize(new Dimension(400, 200));
+        JFrame jf = new JFrame("HBase同步软件 v1.1 by jfz");
+        jf.setSize(550, 200);
+        jf.setMinimumSize(new Dimension(550, 200));
         fileOpenButton = new JButton("打开");
         fileOpenButton.setFocusPainted(false);
         fileOpenButton.setActionCommand("open");
@@ -48,6 +51,12 @@ public class MainGui extends JFrame implements ActionListener, ChangeListener {
         fileSyncButton.addActionListener(this);
         fileSyncButton.setEnabled(false);
 
+        logShowButton = new JButton("查看日志");
+        logShowButton.setFocusPainted(false);
+        logShowButton.setActionCommand("logshow");
+        logShowButton.addActionListener(this);
+        logShowButton.setEnabled(true);
+
         filePathLabel = new JLabel("无");
         fileNameLabel = new JLabel("无");
 
@@ -57,7 +66,7 @@ public class MainGui extends JFrame implements ActionListener, ChangeListener {
         syncProgressBar.setValue(0);
         syncProgressBar.setStringPainted(true);
         syncProgressBar.addChangeListener(this);
-        syncProgressBar.setPreferredSize(new Dimension(360,24));
+        syncProgressBar.setPreferredSize(new Dimension(360, 24));
 
         // 第 1 个 JPanel, 使用默认的浮动布局
         JPanel panel01 = new JPanel();
@@ -65,6 +74,8 @@ public class MainGui extends JFrame implements ActionListener, ChangeListener {
         panel01.add(fileOpenButton);
         panel01.add(new JLabel("          2、开始同步："));
         panel01.add(fileSyncButton);
+        panel01.add(new JLabel("          "));
+        panel01.add(logShowButton);
 
         // 第 2 个 JPanel, 使用默认的浮动布局
 //        JPanel panel02 = new JPanel();
@@ -139,10 +150,63 @@ public class MainGui extends JFrame implements ActionListener, ChangeListener {
             GuiWorker task = new GuiWorker(fileNameLabel, syncProgressBar, fileOpenButton, fileSyncButton, fileList);
             task.execute();
         }
+        // 选择文件
+        if ("logshow".equals(e.getActionCommand())) {
+            showLogDialog(this, this);
+        }
     }
 
     @Override
     public void stateChanged(ChangeEvent e) {
 //        System.out.println("进度:" + syncProgressBar.getValue() + " 百分比:" + syncProgressBar.getPercentComplete());
     }
+
+    // 显示日志对话框
+    private static void showLogDialog(Frame owner, Component parentComponent) {
+        String logStr = "日志不存在！";
+        try {
+            logStr = readFile("HBaseSync.log");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(logStr);
+        // 创建一个模态对话框
+        final JDialog dialog = new JDialog(owner, "显示日志", true);
+        // 设置对话框的宽高
+        dialog.setSize(640, 480);
+        // 设置对话框大小不可改变
+        dialog.setResizable(false);
+        // 设置对话框相对显示的位置
+        dialog.setLocationRelativeTo(parentComponent);
+        // 创建一个标签显示消息内容
+        JLabel messageLabel = new JLabel("读取文件为：HBaseSync.log，请确保文件存在！");
+        // 创建一个 5 行 10 列的文本区域
+        final JTextArea textArea = new JTextArea(20,40);
+        // 设置自动换行
+        textArea.setLineWrap(true);
+        textArea.setEnabled(false);
+        textArea.setText(logStr);
+        // 创建一个按钮用于刷新日志的按钮
+        JButton okBtn = new JButton("重新载入日志");
+        okBtn.setFocusPainted(false);
+        okBtn.addActionListener(e -> {
+            try {
+                String tmpLog = readFile("HBaseSync.log");
+                textArea.setText(tmpLog);
+            } catch (IOException e2) {
+                e2.printStackTrace();
+            }
+        });
+        // 创建对话框的内容面板, 在面板内可以根据自己的需要添加任何组件并做任意是布局
+        JPanel panel = new JPanel();
+        // 添加组件到面板
+        panel.add(messageLabel);
+        panel.add(textArea);
+        panel.add(okBtn);
+        // 设置对话框的内容面板
+        dialog.setContentPane(panel);
+        // 显示对话框
+        dialog.setVisible(true);
+    }
+
 }

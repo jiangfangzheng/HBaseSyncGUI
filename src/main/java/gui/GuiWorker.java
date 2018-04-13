@@ -6,13 +6,18 @@ import java.util.List;
 import static util.DateUtil.getNowTimeS;
 import static util.FileUtil.saveAppend;
 import static util.HBaseRestUtil.adds;
+import static util.StringUtil.deleteLineBreak;
 import static util.StringUtil.getFileNameByFullPath;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Sandeepin
  * 2018/4/12 0012
  */
 public class GuiWorker {
+    private static final Logger logger = LoggerFactory.getLogger(GuiWorker.class);
 
     // 后台任务执行
     private SwingWorker<String, String> task;
@@ -22,7 +27,9 @@ public class GuiWorker {
             @Override
             protected String doInBackground() throws Exception {
                 // 自定义代码
-                saveAppend("HBaseSync.log", "\n在 " + getNowTimeS() + " 时开始了一次同步！");
+                String msg = "\n在 " + getNowTimeS() + " 时开始了一次同步！";
+                saveAppend("HBaseSync.log", msg);
+                logger.info(deleteLineBreak(msg));
                 long startTime = System.currentTimeMillis();
                 for (int i = 0; i < fileList.size(); i++) {
                     // 延时模拟耗时操作
@@ -57,7 +64,7 @@ public class GuiWorker {
                 int realIndex = Integer.parseInt(chunks.get(0));
                 int size = Integer.parseInt(chunks.get(1));
                 String fileName = chunks.get(2);
-                syncProgressBar.setValue((realIndex-1) * 100 / size);
+                syncProgressBar.setValue((realIndex - 1) * 100 / size);
                 fileNameLabel.setText("(" + realIndex + "/" + size + ") " + fileName);
 //                System.out.println("(" + realIndex + "/" + size + ") " + fileName);
             }
@@ -81,6 +88,8 @@ public class GuiWorker {
     }
 
     void execute() {
-        task.execute();
+        if (task != null) {
+            task.execute();
+        }
     }
 }

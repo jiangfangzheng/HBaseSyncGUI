@@ -58,12 +58,20 @@ public class StringUtil {
 
     // 文件绝对路径中提取文件名
     public static String getFileNameByFullPath(String fileFullPath) {
-        fileFullPath =  stringSlashToOne(fileFullPath);
+        fileFullPath = stringSlashToOne(fileFullPath);
         String out = fileFullPath;
-        if (fileFullPath.contains("/")){
+        if (fileFullPath.contains("/")) {
             String[] arr = fileFullPath.split("/");
             out = arr[arr.length - 1];
         }
+        return out;
+    }
+
+    // 字符串中的\n替换为" "
+    public static String deleteLineBreak(String input) {
+        String out = input.replace("\r\n", " ");
+        out = out.replace("\r", " ");
+        out = out.replace("\n", " ");
         return out;
     }
 }
